@@ -1,0 +1,48 @@
+## Ignore Visual Studio temporary files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Build results
+bin/
+obj/
+Debug/
+Release/
+x64/
+x86/
+
+## Rider / VS Code
+.idea/
+.vscode/
+
+## NuGet
+packages/
+*.nupkg
+
+## Logs
+*.log
+
+## OS files
+.DS_Store
+Thumbs.db
+
+## Environment secrets
+appsettings.Development.json
+appsettings.Local.json
+
+## Node modules (if Angular/React used)
+node_modules/
+
+## Publish folder
+publish/
+#wwwroot/lib/
+
+## Database
+*.mdf
+*.ldf
+
+## Others
+*.cache
+*.tmp

@@ -1,0 +1,135 @@
+﻿@using EMS.Models.ViewModels
+@model UsersPageVM
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<h2>Users List</h2>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Company Employees</h5>
+                        <input type="text" id="searchInput" class="form-control w-25"
+                               placeholder="Search employee...">
+                        <button class="btn btn-success">Total: @Model.Users.Count</button>
+                    </div>
+
+                    <table class="table align-middle mt-2 " id="employeeTable">
+                        <thead class="table-light">
+                            <tr>
+                                <td>User Id</td>
+                                <th>Username</th>
+                              
+
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var u in Model.Users)
+                            {
+                                <tr>
+                                    <td>@u.UserId</td>
+                                    <td>@u.Username</td>
+                                 
+
+                                    <td>@u.RoleName</td>
+                                    <td>
+                                        @if (u.IsActive)
+                                        {
+                                            <span class="badge bg-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Inactive</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a asp-controller="User"
+                                           asp-action="Edit"
+                                           asp-route-id="@u.UserId"
+                                           class="btn btn-warning btn-sm">
+                                            Edit
+                                        </a>
+
+                                        <a asp-controller="User"
+                                           asp-action="Delete"
+                                           asp-route-id="@u.UserId"
+                                           class="btn btn-danger btn-sm"
+                                           onclick="return confirm('Delete this user?')">
+                                            Delete
+                                        </a>
+
+
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Add User</h5>
+                </div>
+
+                <div class="card-body">
+                    <form asp-action="@(ViewBag.EditId == null ? "Add" : "Update")"
+                          asp-route-id="@ViewBag.EditId"
+                          method="post">
+
+
+                        <div class="mb-3">
+                            <label asp-for="NewUser.EmployeeId" class="form-label">Employee</label>
+                            <select asp-for="NewUser.EmployeeId"
+                                    asp-items="ViewBag.Employees"
+                                    class="form-control">
+                                <option value="">-- Select Employee --</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="NewUser.Username" class="form-label">Username</label>
+                            <input asp-for="NewUser.Username" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="NewUser.password" class="form-label">Password</label>
+                            <input asp-for="NewUser.password" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="NewUser.RoleId" class="form-label">Role</label>
+                            <select asp-for="NewUser.RoleId"
+                                    asp-items="ViewBag.Roles"
+                                    class="form-control">
+                                <option value="">-- Select Role --</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="NewUser.IsActive" class="form-label">Status</label>
+                            <select asp-for="NewUser.IsActive" class="form-control">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">
+                            @(ViewBag.EditId == null ? "Save User" : "Update User")
+                        </button>
+
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
