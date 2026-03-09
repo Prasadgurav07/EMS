@@ -18,13 +18,13 @@ namespace EMS.Controllers
             return View(list);
         }
         [HttpGet]
-        public IActionResult Add() 
-        { 
+        public IActionResult Add()
+        {
             return View();
         }
         [HttpPost]
-        public IActionResult Add(Department department) 
-        { 
+        public IActionResult Add(Department department)
+        {
             var add = _context.Add(department);
             _context.SaveChanges();
             return RedirectToAction("Index");

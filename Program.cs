@@ -1,21 +1,36 @@
 using EMS.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ? Add services BEFORE Build()
+
 builder.Services.AddControllersWithViews();
-builder.Services.AddDbContext<EmsDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("dbsc")));
+
+builder.Services.AddDbContext<EmsDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("dbsc")));
+
 builder.Services.AddScoped<DbHelper>();
+
 builder.Services.AddSession();
-var app = builder.Build();
 
+// ? ADD AUTHENTICATION HERE (BEFORE Build)
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+    });
 
-// Configure the HTTP request pipeline.
+builder.Services.AddAuthorization();
+
+var app = builder.Build();   // ? BUILD AFTER ALL SERVICES ADDED
+
+// Configure pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -23,8 +38,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
 app.UseSession();
 
+app.UseAuthentication();   // MUST come before Authorization
 app.UseAuthorization();
 
 app.MapControllerRoute(

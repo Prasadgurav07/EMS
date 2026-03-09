@@ -2,6 +2,7 @@
 using EMS.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
 
 namespace EMS.Controllers
 {
@@ -28,7 +29,7 @@ namespace EMS.Controllers
             vm.Users = _dbHelper.GetUsers();
 
             // fill dropdowns
-            ViewBag.Employees = _dbHelper.Employees();
+            ViewBag.emps = _dbHelper.Employees();
             ViewBag.Roles = _dbHelper.GetRoles();
 
             return View(vm);   // ⭐ send full page model
@@ -53,13 +54,22 @@ namespace EMS.Controllers
 
         public IActionResult Edit(int id)
         {
+
+            var json = HttpContext.Session.GetString("Features");
+
+            var features = JsonConvert.DeserializeObject<List<string>>(json);
+            ViewBag.Features = new { Items = features };
+
+
             UsersPageVM vm = new UsersPageVM();
 
             vm.Users = _dbHelper.GetUsers();
             vm.NewUser = _dbHelper.GetUserById(id);
 
-            ViewBag.Employees = _dbHelper.GetEmployees();
-            ViewBag.Roles = _dbHelper.GetRoles();
+          
+                IEnumerable<Employee> employees = _dbHelper.GetEmployees();
+            ViewBag.emps = employees;
+          ViewBag.Roles = _dbHelper.GetRoles();
 
             ViewBag.EditId = id;   // important
             return View("Users", vm);
@@ -68,12 +78,12 @@ namespace EMS.Controllers
         public IActionResult Update(UsersPageVM model, int id)
         {
             _dbHelper.UpdateUser(model.NewUser, id);
-            return RedirectToAction("Index");
+            return RedirectToAction("Users");
         }
         public IActionResult Delete(int id)
         {
             _dbHelper.DeleteUser(id);
-            return RedirectToAction("Index");
+            return RedirectToAction("Users");
         }
 
 

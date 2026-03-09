@@ -1,59 +1,104 @@
-﻿
+﻿<style>
+    .dashboard-card {
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        color: white;
+        border: none;
+        border-radius: 18px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        position: relative;
+        overflow: hidden;
+    }
 
-<div class="row">
+        .dashboard-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+        }
 
-    <div class="col-md-3">
-        <div class="card bg-info text-white">
-            <div class="card-body">
-                <h3>12</h3>
-                <p>My Projects</p>
+    .dashboard-icon {
+        font-size: 40px;
+        opacity: 0.2;
+        position: absolute;
+        right: 20px;
+        top: 20px;
+    }
+
+    .dashboard-number {
+        font-size: 32px;
+        font-weight: bold;
+    }
+
+    .dashboard-text {
+        font-size: 16px;
+        margin-bottom: 0;
+        opacity: 0.9;
+    }
+</style>
+
+<div class="row g-4">
+
+    <div class="col-md-3" id="pro">
+        <div class="card dashboard-card p-3">
+            <i class="fa-solid fa-folder-open dashboard-icon"></i>
+            <div>
+                <h3 class="dashboard-number counter" data-target="12">0</h3>
+                <p class="dashboard-text">My Projects</p>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <h3>20</h3>
-                <p>My Tasks</p>
+    <div class="col-md-3" id="task">
+        <div class="card dashboard-card p-3">
+            <i class="fa-solid fa-list-check dashboard-icon"></i>
+            <div>
+                <h3 class="dashboard-number counter" data-target="20">0</h3>
+                <p class="dashboard-text">My Tasks</p>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card bg-warning text-white">
-            <div class="card-body">
-                <h3>11</h3>
-                <p>Pending Tasks</p>
+    <div class="col-md-3" id="ptask">
+        <div class="card dashboard-card p-3">
+            <i class="fa-solid fa-hourglass-half dashboard-icon"></i>
+            <div>
+                <h3 class="dashboard-number counter" data-target="11">0</h3>
+                <p class="dashboard-text">Pending Tasks</p>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card bg-danger text-white">
-            <div class="card-body">
-                <h3>8</h3>
-                <p>Leave Requests</p>
+    <div class="col-md-3" id="Lreq">
+        <div class="card dashboard-card p-3">
+            <i class="fa-solid fa-calendar-check dashboard-icon"></i>
+            <div>
+                <h3 class="dashboard-number counter" data-target="8">0</h3>
+                <p class="dashboard-text">Leave Requests</p>
             </div>
         </div>
     </div>
 
 </div>
+<script>
+    const counters = document.querySelectorAll('.counter');
 
-<hr />
+    counters.forEach(counter => {
+        counter.innerText = '0';
 
-<h4>My Recent Tasks</h4>
-<table class="table table-bordered">
-    <tr>
-        <th>Task</th>
-        <th>Status</th>
-        <th>Due Date</th>
-    </tr>
-   
-        <tr>
-            <td>attendance Module</td>
-            <td>Pending</td>
-            <td>@DateTime.Now</td>
-        </tr>
-   
-</table>
+        const updateCounter = () => {
+            const target = +counter.getAttribute('data-target');
+            const current = +counter.innerText;
+
+            const increment = target / 100;
+
+            if (current < target) {
+                counter.innerText = `${Math.ceil(current + increment)}`;
+                setTimeout(updateCounter, 20);
+            } else {
+                counter.innerText = target;
+            }
+        };
+
+        updateCounter();
+    });
+</script>

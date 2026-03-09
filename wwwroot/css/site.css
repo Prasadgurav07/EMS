@@ -20,3 +20,59 @@ html {
 body {
   margin-bottom: 60px;
 }
+<style >
+* {
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: #f4f6f9;
+}
+
+.page-banner {
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: white;
+    padding: 25px 30px;
+    border-radius: 18px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+    .page-banner h3 {
+        font-weight: 600;
+        margin: 0;
+    }
+
+.page-icon {
+    font-size: 28px;
+    background: rgba(255,255,255,0.2);
+    padding: 12px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+
+.custom-card {
+    border-radius: 18px;
+    border: none;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+.feature-box {
+    padding: 12px 15px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    margin-bottom: 10px;
+    transition: 0.2s;
+}
+
+    .feature-box:hover {
+        background: #e9f0ff;
+    }
+
+.btn-primary {
+    background: linear-gradient(135deg,#1e3c72,#2a5298);
+    border: none;
+}
+
+</style >

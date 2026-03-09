@@ -15,11 +15,17 @@ public partial class EmsDbContext : DbContext
     {
     }
 
+    public virtual DbSet<DailyPresenty> DailyPresenties { get; set; }
+
     public virtual DbSet<Department> Departments { get; set; }
 
     public virtual DbSet<Employee> Employees { get; set; }
 
     public virtual DbSet<Feature> Features { get; set; }
+
+    public virtual DbSet<LeaveRequest> LeaveRequests { get; set; }
+
+    public virtual DbSet<Project> Projects { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
 
@@ -28,11 +34,28 @@ public partial class EmsDbContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=DESKTOP-NGALKNG\\SQLEXPRESS;Database=EMS_DB;Trusted_Connection=True;TrustServerCertificate=True;");
 
-    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<DailyPresenty>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__dailyPre__3213E83FCC55761F");
+
+            entity.ToTable("dailyPresenty");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Empid).HasColumnName("empid");
+            entity.Property(e => e.PunchIn)
+                .HasColumnType("datetime")
+                .HasColumnName("Punch_in");
+            entity.Property(e => e.PunchOut)
+                .HasColumnType("datetime")
+                .HasColumnName("Punch_Out");
+            entity.Property(e => e.Status).HasColumnName("status");
+        });
+
         modelBuilder.Entity<Department>(entity =>
         {
             entity.HasKey(e => e.DepartmentId).HasName("PK__Departme__B2079BEDF4EC1956");
@@ -105,6 +128,37 @@ public partial class EmsDbContext : DbContext
             entity.Property(e => e.FeatureName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<LeaveRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__LeaveReq__3213E83F3294D76C");
+
+            entity.ToTable("LeaveRequest");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Empid).HasColumnName("empid");
+            entity.Property(e => e.Fromdate).HasColumnType("datetime");
+            entity.Property(e => e.Reason)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("reason");
+            entity.Property(e => e.Status)
+                .HasDefaultValue(false)
+                .HasColumnName("status");
+            entity.Property(e => e.Todate).HasColumnType("datetime");
+            entity.Property(e => e.Typeofleave).HasColumnName("typeofleave");
+        });
+
+        modelBuilder.Entity<Project>(entity =>
+        {
+            entity.HasKey(e => e.ProjectId).HasName("PK__Projects__761ABEF022F5C697");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.ProjectName).HasMaxLength(200);
+            entity.Property(e => e.Status).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Role>(entity =>

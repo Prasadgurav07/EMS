@@ -1,0 +1,148 @@
+﻿@using EMS.Models.ViewModels
+@model RoleFeatureVM
+<div class="position-fixed top-0 end-0 p-3" style="z-index:1055; width:350px;">
+    @if (TempData["msg"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["msg"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+</div>
+<style>
+    * {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+        background-color: #f4f6f9;
+    }
+
+    .page-banner {
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        color: white;
+        padding: 25px 30px;
+        border-radius: 18px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+        .page-banner h3 {
+            font-weight: 600;
+            margin: 0;
+        }
+
+    .page-icon {
+        font-size: 28px;
+        background: rgba(255,255,255,0.2);
+        padding: 12px;
+        border-radius: 50%;
+        margin-right: 15px;
+    }
+
+
+    .custom-card {
+        border-radius: 18px;
+        border: none;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+
+    .feature-box {
+        padding: 12px 15px;
+        border-radius: 10px;
+        background: #f8f9fa;
+        margin-bottom: 10px;
+        transition: 0.2s;
+    }
+
+        .feature-box:hover {
+            background: #e9f0ff;
+        }
+
+    .btn-primary {
+        background: linear-gradient(135deg,#1e3c72,#2a5298);
+        border: none;
+    }
+</style>
+
+<!-- HEADER -->
+
+
+<div class="page-banner d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center">
+        <div class="page-icon">
+            <i class="fa-solid fa-users"></i>
+        </div>
+        <div>
+            <h3> Role Feature Access</h3>
+            <small>Assign features to roles</small>
+        </div>
+    </div>
+
+
+</div>
+
+
+<div class="container-fluid">
+
+    <div class="card custom-card">
+        <div class="card-body">
+
+            <!-- Role Dropdown -->
+            <form method="get">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <label>Select Role</label>
+                        <select name="roleId"
+                                class="form-select"
+                                onchange="this.form.submit()">
+                            <option value="">-- Select Role --</option>
+                            @foreach (var r in Model.Roles)
+                            {
+                                <option value="@r.RoleId"
+                                        selected="@(Model.SelectedRoleId == r.RoleId)">
+                                    @r.RoleName
+                                </option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </form>
+
+            @if (Model.SelectedRoleId > 0)
+            {
+                <form asp-action="Save" method="post">
+                    <input type="hidden" asp-for="SelectedRoleId" />
+
+                    <div class="row">
+                        @for (int i = 0; i < Model.Features.Count; i++)
+                        {
+                            <div class="col-md-4">
+                                <div class="feature-box">
+                                    <input type="hidden"
+                                           asp-for="Features[i].FeatureId" />
+
+                                    <input type="checkbox"
+                                           asp-for="Features[i].IsSelected"
+                                           class="form-check-input me-2" />
+
+                                    <label class="form-check-label">
+                                        @Model.Features[i].FeatureName
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            Save Access
+                        </button>
+                    </div>
+                </form>
+            }
+
+        </div>
+    </div>
+
+</div>

@@ -1,5 +1,6 @@
 ﻿using EMS.Models;
 using EMS.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
@@ -19,6 +20,7 @@ public class EmployeeController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     public IActionResult Add(int? id)
     
     {
@@ -52,9 +54,8 @@ public class EmployeeController : Controller
         return View(model);
     }
 
-
-
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public IActionResult Add(DashboardViewModel model, IFormFile Photo)
     {
         var employee = model.NewEmployee;
@@ -170,5 +171,17 @@ public class EmployeeController : Controller
 
     }
 
+
+    public IActionResult delete(int id)
+    {
+        var empid = _db.Employees.Find(id);
+        if (empid != null)
+        {
+            _db.Employees.Remove(empid);
+           
+        }
+        _db.SaveChanges();
+        return RedirectToAction("add");
+    }
 
 }

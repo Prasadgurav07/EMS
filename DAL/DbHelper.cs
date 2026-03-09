@@ -296,7 +296,7 @@ LEFT JOIN Roles r ON u.RoleId = r.RoleId";
         using (SqlConnection con = new SqlConnection(ConnectionString))
         {
             string q = @"UPDATE Users 
-                     SET EmployeeId=@EmployeeId,
+                     SET 
                          Username=@Username,
                          RoleId=@RoleId,
                          IsActive=@IsActive
@@ -304,7 +304,7 @@ LEFT JOIN Roles r ON u.RoleId = r.RoleId";
 
             SqlCommand cmd = new SqlCommand(q, con);
 
-            cmd.Parameters.AddWithValue("@EmployeeId", user.EmployeeId);
+            //cmd.Parameters.AddWithValue("@EmployeeId", user.EmployeeId);
             cmd.Parameters.AddWithValue("@Username", user.Username);
             cmd.Parameters.AddWithValue("@RoleId", user.RoleId);
             cmd.Parameters.AddWithValue("@IsActive", user.IsActive);

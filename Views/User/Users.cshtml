@@ -1,71 +1,140 @@
-﻿@using EMS.Models.ViewModels
-@model UsersPageVM
+﻿@model EMS.Models.ViewModels.UsersPageVM
+
+<style>
+    .page-banner {
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        color: white;
+        padding: 25px 30px;
+        border-radius: 18px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+        .page-banner h3 {
+            font-weight: 600;
+            margin: 0;
+        }
+
+    .page-icon {
+        font-size: 28px;
+        background: rgba(255,255,255,0.2);
+        padding: 12px;
+        border-radius: 50%;
+        margin-right: 15px;
+    }
 
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    .custom-table thead {
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        color: white;
+    }
 
-<h2>Users List</h2>
+    .custom-table tbody tr:hover {
+        background-color: #f2f6ff;
+    }
+
+    .form-control, .form-select {
+        border-radius: 10px;
+        transition: 0.3s;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #2a5298;
+            box-shadow: 0 0 6px rgba(42,82,152,0.3);
+        }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        border: none;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+    }
+
+    #searchInput {
+        border-radius: 25px;
+        padding-left: 15px;
+    }
+</style>
+
+<!-- ================= HEADER ================= -->
+
+
+<div class="page-banner d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center">
+        <div class="page-icon">
+            <i class="fa-solid fa-users"></i>
+        </div>
+        <div>
+            <h3>User Management</h3>
+            <small>Manage system users & roles</small>
+        </div>
+    </div>
+
+    <div class="text-end">
+        <div> Total Users: </div>
+        <div class="fw-bold fs-4">@Model.Users.Count</div>
+    </div>
+</div>
+
 <div class="container-fluid">
     <div class="row">
+
+        <!-- ================= LEFT : USERS LIST ================= -->
         <div class="col-md-7">
-            <div class="card shadow-sm">
+            <div class="card custom-card">
                 <div class="card-body">
 
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Company Employees</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5>Users List</h5>
                         <input type="text" id="searchInput" class="form-control w-25"
-                               placeholder="Search employee...">
-                        <button class="btn btn-success">Total: @Model.Users.Count</button>
+                               placeholder="Search user...">
                     </div>
 
-                    <table class="table align-middle mt-2 " id="employeeTable">
-                        <thead class="table-light">
+                    <table class="table align-middle custom-table" id="userTable">
+                        <thead>
                             <tr>
-                                <td>User Id</td>
+                                <th>User ID</th>
                                 <th>Username</th>
-                              
-
                                 <th>Role</th>
                                 <th>Status</th>
-                                <th>Action</th>
+                                <th width="150">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var u in Model.Users)
+                            @foreach (var u in (System.Collections.Generic.IEnumerable<EMS.Models.ViewModels.UserListVM>) Model.Users)
                             {
                                 <tr>
                                     <td>@u.UserId</td>
                                     <td>@u.Username</td>
-                                 
-
                                     <td>@u.RoleName</td>
                                     <td>
                                         @if (u.IsActive)
                                         {
-                                            <span class="badge bg-success">Active</span>
+                                            <span class="badge bg-success px-3 py-2">Active</span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-danger">Inactive</span>
+                                            <span class="badge bg-danger px-3 py-2">Inactive</span>
                                         }
                                     </td>
                                     <td>
                                         <a asp-controller="User"
                                            asp-action="Edit"
                                            asp-route-id="@u.UserId"
-                                           class="btn btn-warning btn-sm">
-                                            Edit
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fa fa-edit"></i>
                                         </a>
 
                                         <a asp-controller="User"
                                            asp-action="Delete"
                                            asp-route-id="@u.UserId"
-                                           class="btn btn-danger btn-sm"
+                                           class="btn btn-sm btn-danger"
                                            onclick="return confirm('Delete this user?')">
-                                            Delete
+                                            <i class="fa fa-trash"></i>
                                         </a>
-
-
                                     </td>
                                 </tr>
                             }
@@ -75,10 +144,15 @@
                 </div>
             </div>
         </div>
+
+        <!-- ================= RIGHT : ADD / UPDATE USER ================= -->
         <div class="col-md-5">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Add User</h5>
+            <div class="card custom-card">
+                <div class="card-header text-white"
+                     style="background: linear-gradient(135deg,#1e3c72,#2a5298); border-radius:18px 18px 0 0;">
+                    <h5 class="mb-0">
+                        @(ViewBag.EditId == null ? "Add User" : "Update User")
+                    </h5>
                 </div>
 
                 <div class="card-body">
@@ -86,37 +160,37 @@
                           asp-route-id="@ViewBag.EditId"
                           method="post">
 
-
                         <div class="mb-3">
-                            <label asp-for="NewUser.EmployeeId" class="form-label">Employee</label>
+                            <label class="form-label">Employee</label>
                             <select asp-for="NewUser.EmployeeId"
-                                    asp-items="ViewBag.Employees"
-                                    class="form-control">
+                                    asp-items="ViewBag.emps"
+                                    class="form-select">
                                 <option value="">-- Select Employee --</option>
                             </select>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="NewUser.Username" class="form-label">Username</label>
+                            <label class="form-label">Username</label>
                             <input asp-for="NewUser.Username" class="form-control" />
                         </div>
+
                         <div class="mb-3">
-                            <label asp-for="NewUser.password" class="form-label">Password</label>
-                            <input asp-for="NewUser.password" class="form-control" />
+                            <label class="form-label">Password</label>
+                            <input asp-for="NewUser.password" type="password" class="form-control" />
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="NewUser.RoleId" class="form-label">Role</label>
+                            <label class="form-label">Role</label>
                             <select asp-for="NewUser.RoleId"
                                     asp-items="ViewBag.Roles"
-                                    class="form-control">
+                                    class="form-select">
                                 <option value="">-- Select Role --</option>
                             </select>
-                        </div>
+                        </div> 
 
                         <div class="mb-3">
-                            <label asp-for="NewUser.IsActive" class="form-label">Status</label>
-                            <select asp-for="NewUser.IsActive" class="form-control">
+                            <label class="form-label">Status</label>
+                            <select asp-for="NewUser.IsActive" class="form-select">
                                 <option value="true">Active</option>
                                 <option value="false">Inactive</option>
                             </select>
@@ -126,10 +200,24 @@
                             @(ViewBag.EditId == null ? "Save User" : "Update User")
                         </button>
 
-
                     </form>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById("searchInput").addEventListener("input", function () {
+            let filter = this.value.toLowerCase();
+            let rows = document.querySelectorAll("#userTable tbody tr");
+
+            rows.forEach(function (row) {
+                let text = row.innerText.toLowerCase();
+                row.style.display = text.indexOf(filter) > -1 ? "" : "none";
+            });
+        });
+    </script>
+}

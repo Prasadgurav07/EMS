@@ -1,0 +1,136 @@
+﻿@using EMS.Models.ViewModels
+@model ProjectViewModel
+
+<div class="page-banner d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center">
+        <div class="page-icon">
+            <i class="fa-solid fa-users"></i>
+        </div>
+        <div>
+            <h3> Projects</h3>
+            <small>Assign Project To Employee </small>
+        </div>
+    </div>
+
+
+</div>
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- ================= LEFT : EMPLOYEE LIST ================= -->
+        <div class="col-md-9">
+            <div class="card custom-card">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Company Projects</h5>
+                        <input type="text" id="searchInput" class="form-control w-25"
+                               placeholder="Search Projects...">
+                    </div>
+
+                    <table class="table align-middle mt-2" id="employeeTable">
+                        <thead>
+                            <tr>
+                                <th>ProjectId</th>
+                                <th>Project Name</th>
+                                <th>Project Description</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Status</th>
+                                <th>Created Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var ITEM in Model.projects)
+                            {
+                                <tr>
+                                    <td>@ITEM.ProjectId</td>
+
+                                    <td>@ITEM.ProjectName</td>
+                                    <td>
+                                        @ITEM.ProjectDescription
+                                    </td>
+                                    <td>@ITEM.StartDate</td>
+                                    <td>@ITEM.EndDate</td>
+                                    <td class="@(ITEM.Status == "Pending" ? "bg-danger" : ITEM.Status == "Done" ? "bg-success" : "")">
+                                        @ITEM.Status
+                                    </td>
+                                    <td>@ITEM.CreatedDate</td>
+                                    <td>
+                                        <a asp-action="Index" asp-route-id="@ITEM.ProjectId"
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+
+                                        <a asp-action="Delete" asp-route-id="@ITEM.ProjectId"
+                                           class="btn btn-sm btn-danger">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= RIGHT : ADD EMPLOYEE FORM ================= -->
+        <div class="col-md-3">
+            <div class="card custom-card">
+                <div class="card-header text-white"
+                     style="background: linear-gradient(135deg, #1e3c72, #2a5298); border-radius:18px 18px 0 0;">
+                    <h5 class="mb-0">
+                        @(Model.NewProject.ProjectId == 0 ? "Add Project" : "Update Project")
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <form asp-action="Index" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="NewProject.ProjectId" />
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3">
+                        </div> <div class="row g-3">
+                            <div class="col-md-12">
+                                <label asp-for="NewProject.ProjectName" class="form-label">Project Name</label>
+                                <input asp-for="NewProject.ProjectName" class="form-control" />
+                                <span asp-validation-for="NewProject.ProjectName" class="text-danger">
+                                </span>
+                            </div>
+                            <div class="col-md-12">
+                                <label asp-for="NewProject.ProjectDescription" class="form-label">Project Description</label>
+                                <textarea asp-for="NewProject.ProjectDescription" class="form-control"  class="form-control"
+                                          rows="3"
+                                          placeholder="Enter reason..."
+                                          required></textarea>
+                                <span asp-validation-for="NewProject.ProjectDescription" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="NewProject.StartDate" class="form-label">Start Date</label>
+                                <input asp-for="NewProject.StartDate" class="form-control" type="date"/>
+                                <span asp-validation-for="NewProject.StartDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="NewProject.EndDate" class="form-label">End Date</label>
+                                <input asp-for="NewProject.EndDate" class="form-control"  type="date"/>
+                                <span asp-validation-for="NewProject.EndDate" class="text-danger"></span>
+                            </div>
+                           </div>
+
+
+                        <div class="mt-4 text-end">
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                @(Model.NewProject.ProjectId == 0 ? "Save" : "Update")
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -5,6 +5,8 @@
         public List<UserListVM> Users { get; set; } = new List<UserListVM>();
 
         public NewUserVM NewUser { get; set; } = new NewUserVM();
+
+
     }
 
 }

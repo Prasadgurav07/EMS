@@ -9,25 +9,116 @@
     </div>
 }
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+    /* ================= PAGE BANNER ================= */
+    .page-banner {
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        color: white;
+        padding: 25px 30px;
+        border-radius: 18px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+        .page-banner h3 {
+            font-weight: 600;
+            margin: 0;
+        }
+
+    .page-icon {
+        font-size: 28px;
+        background: rgba(255,255,255,0.2);
+        padding: 12px;
+        border-radius: 50%;
+        margin-right: 15px;
+    }
+
+    /* ================= CARD ================= */
+    .custom-card {
+        border-radius: 18px;
+        border: none;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+
+    /* ================= TABLE ================= */
+    #employeeTable thead {
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        color: white;
+    }
+
+    #employeeTable tbody tr:hover {
+        background-color: #f2f6ff;
+    }
+
+    .emp-img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #2a5298;
+        margin-right: 8px;
+    }
+
+    /* ================= FORM ================= */
+    .form-control, .form-select {
+        border-radius: 10px;
+        transition: 0.3s;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #2a5298;
+            box-shadow: 0 0 6px rgba(42,82,152,0.3);
+        }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        border: none;
+    }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+    #searchInput {
+        border-radius: 25px;
+        padding-left: 15px;
+    }
+</style>
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="page-banner d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center">
+        <div class="page-icon">
+            <i class="fa-solid fa-users"></i>
+        </div>
+        <div>
+            <h3>Employee Management</h3>
+            <small>Manage employees, departments & records</small>
+        </div>
+    </div>
+
+    <div class="text-end">
+        <div>Total Employees</div>
+        <div class="fw-bold fs-4">@Model.Employees.Count</div>
+    </div>
+</div>
 
 <div class="container-fluid">
     <div class="row">
 
         <!-- ================= LEFT : EMPLOYEE LIST ================= -->
         <div class="col-md-7">
-            <div class="card shadow-sm">
+            <div class="card custom-card">
                 <div class="card-body">
 
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0">Company Employees</h5>
                         <input type="text" id="searchInput" class="form-control w-25"
                                placeholder="Search employee...">
-                        <button class="btn btn-success">Total: @Model.Employees.Count</button>
                     </div>
 
-                    <table class="table align-middle mt-2 " id="employeeTable">
-                        <thead class="table-light">
+                    <table class="table align-middle mt-2" id="employeeTable">
+                        <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Name</th>
@@ -42,7 +133,7 @@
                                 <tr>
                                     <td>@ITEM.EmployeeId</td>
                                     <td>
-                                        <img src="@ITEM.PhotoPath" width="40" height="40" style="border-radius:50%" />
+                                        <img src="@ITEM.PhotoPath" class="emp-img" />
                                         @ITEM.FirstName
                                     </td>
                                     <td>@ITEM.Department.DepartmentName</td>
@@ -51,14 +142,15 @@
                                         <small>@ITEM.Email</small>
                                     </td>
                                     <td>
-                                        <a asp-action="Add" asp-route-id="@ITEM.EmployeeId" class="btn btn-sm btn-primary">
+                                        <a asp-action="Add" asp-route-id="@ITEM.EmployeeId"
+                                           class="btn btn-sm btn-primary">
                                             <i class="fa fa-edit"></i>
                                         </a>
 
-                                        <a asp-action="Delete" asp-route-id="@ITEM.EmployeeId" class="btn btn-sm btn-danger">
+                                        <a asp-action="Delete" asp-route-id="@ITEM.EmployeeId"
+                                           class="btn btn-sm btn-danger">
                                             <i class="fa fa-trash"></i>
                                         </a>
-
                                     </td>
                                 </tr>
                             }
@@ -71,11 +163,14 @@
 
         <!-- ================= RIGHT : ADD EMPLOYEE FORM ================= -->
         <div class="col-md-5">
-
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Add Employee</h5>
+            <div class="card custom-card">
+                <div class="card-header text-white"
+                     style="background: linear-gradient(135deg, #1e3c72, #2a5298); border-radius:18px 18px 0 0;">
+                    <h5 class="mb-0">
+                        @(Model.NewEmployee.EmployeeId == 0 ? "Add Employee" : "Update Employee")
+                    </h5>
                 </div>
+
                 <div class="card-body">
                     <form asp-action="Add" method="post" enctype="multipart/form-data">
                         <input type="hidden" asp-for="NewEmployee.EmployeeId" />
@@ -141,41 +236,33 @@
                                 <span asp-validation-for="NewEmployee.PhotoPath" class="text-danger"></span>
                             </div>
                         </div>
-                        <div class="mt-4 d-flex gap-1 float-end">
-                            <a asp-action="Index" class="btn btn-secondary">Back</a>
 
+
+                        <div class="mt-4 text-end">
                             <button type="submit"
-                                    class="btn @(Model.NewEmployee.EmployeeId == 0 ? "btn-primary" : "btn-warning")">
+                                    class="btn btn-primary">
                                 @(Model.NewEmployee.EmployeeId == 0 ? "Save" : "Update")
                             </button>
-
                         </div>
 
                     </form>
                 </div>
             </div>
         </div>
-    </div>
 
+    </div>
 </div>
+
 @section Scripts {
     <script>
         document.getElementById("searchInput").addEventListener("input", function () {
-            let filter = this.value.toLowerCase();   // even 1 letter works
+            let filter = this.value.toLowerCase();
             let rows = document.querySelectorAll("#employeeTable tbody tr");
 
             rows.forEach(function (row) {
                 let text = row.innerText.toLowerCase();
-
-                if (text.indexOf(filter) > -1) {
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none";
-                }
+                row.style.display = text.indexOf(filter) > -1 ? "" : "none";
             });
         });
     </script>
 }
-
-
-

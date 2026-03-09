@@ -1,15 +1,14 @@
-﻿using AspNetCoreGeneratedDocument;
-using BCrypt.Net;
-using EMS.Models;
+﻿using EMS.Models;
 using EMS.Models.ViewModels;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Newtonsoft.Json;
 using System.Data;
-using System.Data;
-using System.Data.SqlClient;
+using System.Security.Claims;
 using SqlCommand = Microsoft.Data.SqlClient.SqlCommand;
 
 
@@ -30,23 +29,26 @@ public class AccountController : Controller
     {
         return View();
     }
+
+
     [HttpPost]
-    public IActionResult Login(LoginViewModel model)
+    public async Task<IActionResult> Login(LoginViewModel model)
     {
         if (!ModelState.IsValid)
-        {
             return View(model);
-        }
 
         SqlCommand cmd = new SqlCommand(@"
-               SELECT U.UserId, U.Username, U.PasswordHash, R.RoleName,f.featureName,f.featurelink,e.FirstName,e.LastName,e.PhotoPath
-       FROM Users U
-       INNER JOIN Roles R ON U.RoleId = R.RoleId
-left join RoleFeatureAccess FA on u.RoleId = FA.RoleId
-	   
-left join  Features F on fa.FeatureId = f.FeatureId
-left join Employees E on u.EmployeeId = e.EmployeeId
-        WHERE U.Username = @Username AND u.PasswordHash = @password and U.IsActive = 1
+        SELECT U.UserId,E.employeeId, U.Username, U.PasswordHash, R.RoleName,
+               f.featureName, f.featurelink,
+               e.FirstName, e.LastName, e.PhotoPath
+        FROM Users U
+        INNER JOIN Roles R ON U.RoleId = R.RoleId
+        LEFT JOIN RoleFeatureAccess FA ON U.RoleId = FA.RoleId
+        LEFT JOIN Features F ON FA.FeatureId = F.FeatureId
+        LEFT JOIN Employees E ON U.EmployeeId = E.EmployeeId
+        WHERE U.Username = @Username 
+              AND U.PasswordHash = @password 
+              AND U.IsActive = 1
     ");
 
         cmd.Parameters.Add("@Username", SqlDbType.VarChar, 100).Value = model.Username;
@@ -60,53 +62,61 @@ left join Employees E on u.EmployeeId = e.EmployeeId
             return View(model);
         }
 
-        // 🔹 Read values from DB
-        int userId = Convert.ToInt32(dt.Rows[0]["UserId"]);
-        string role = Convert.ToString(dt.Rows[0]["RoleName"])?.Trim();
-        string firstName = Convert.ToString(dt.Rows[0]["FirstName"]);
-        string lastName = Convert.ToString(dt.Rows[0]["LastName"]);
-        string photo = Convert.ToString(dt.Rows[0]["PhotoPath"]);
-        // ADMIN ONLY ACCESS
-        
-        // STORE FEATURES IN SESSION
+        // ✅ DEFINE ROW
+        var row = dt.Rows[0];
+
+        int userId = Convert.ToInt32(row["UserId"]);
+        int empid = Convert.ToInt32(row["EmployeeId"]);
+        string role = Convert.ToString(row["RoleName"])?.Trim();
+        string firstName = Convert.ToString(row["FirstName"]);
+        string lastName = Convert.ToString(row["LastName"]);
+        string photo = Convert.ToString(row["PhotoPath"]);
+
+        // Store features in session
         List<string> features = new List<string>();
 
-        foreach (DataRow row in dt.Rows)
+        foreach (DataRow r in dt.Rows)
         {
-            features.Add(row["featureName"].ToString());
-            features.Add(row["featurelink"].ToString());
+            if (r["featureName"] != DBNull.Value)
+                features.Add(r["featureName"].ToString());
+
+            if (r["featurelink"] != DBNull.Value)
+                features.Add(r["featurelink"].ToString());
         }
 
         string json = JsonConvert.SerializeObject(features);
         HttpContext.Session.SetString("Features", json);
 
-        // SESSION
-        HttpContext.Session.SetInt32(
-            "UserId", Convert.ToInt32(dt.Rows[0]["UserId"])
-        );
-        // 🔹 STORE SESSION DATA (VERY IMPORTANT)
-        HttpContext.Session.SetInt32("UserId", userId);
-        HttpContext.Session.SetString("UserName", firstName + " " + lastName);
-        HttpContext.Session.SetString("Photo", photo ?? "");
-        HttpContext.Session.SetString("Role", role);
-
         TempData["name"] = firstName;
-        ViewBag.photo = photo;
-        ViewBag.featues = dt;
+        // 🔥 CREATE CLAIMS
+        var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, firstName),
+        new Claim(ClaimTypes.Role, role),
+        new Claim("UserId", userId.ToString()),  new Claim("EmployeeId", empid.ToString())
+    };
 
+        var claimsIdentity = new ClaimsIdentity(
+            claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var authProperties = new AuthenticationProperties
+        {
+            IsPersistent = true
+        };
+
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(claimsIdentity),
+            authProperties);
+
+        // Redirect based on role
         if (role == "Admin")
-        {
-            return RedirectToAction("Add", "Employee");
-        }
-        else if (role == "Employee")
-        {
-            return RedirectToAction("EmpDashborad");
-        }
-        else 
-        { 
+            return RedirectToAction("dashboard",new {am="ar"});
 
-        }
-        return BadRequest("You Have not Access");
+        if (role == "Employee")
+            return RedirectToAction("Dashboard");
+
+        return RedirectToAction("Dashboard");
     }
 
 
@@ -115,8 +125,66 @@ left join Employees E on u.EmployeeId = e.EmployeeId
         HttpContext.Session.Clear();
         return RedirectToAction("Login");
     }
-    public IActionResult Dashboard()
+    //public IActionResult Dashboard(string? am)
+    //{
+
+    //    DashboardViewModel model=new DashboardViewModel();
+    //    ViewBag.name = TempData["name"];
+    //    var json = HttpContext.Session.GetString("Features");
+
+    //    if (!string.IsNullOrEmpty(json))
+    //    {
+    //        var features = JsonConvert.DeserializeObject<List<string>>(json);
+    //        ViewBag.Features = new { Items = features };
+    //    }
+    //    ViewBag.IsAdmin = User.IsInRole("Admin");
+    //    var employees = _db.GetEmployeesWithDepartment();
+    //    if (employees != null)
+    //    {
+    //        model = new DashboardViewModel
+    //        {
+    //            Employees = employees,
+    //            NewEmployee = new Employee(),
+    //            empAttendanceViewModel = new EmpAttendanceViewModel
+    //            {
+    //                employees = emsDbContext.Employees.ToList()
+
+    //            }
+
+    //        };
+    //        if (model != null)
+    //        {
+
+    //            ViewBag.am = am;
+    //            model.PresentToday =
+    //   emsDbContext.DailyPresenties
+    //   .Count(x => x.RequestDate == today && x.Status == true);
+
+    //            model.PendingRequests =
+    //                emsDbContext.DailyPresenties
+    //                .Count(x => x.Status == false);
+
+    //            model.ApprovedRequests =
+    //                emsDbContext.DailyPresenties
+    //                .Count(x => x.Status == true);
+
+    //            model.RejectedRequests =
+    //                emsDbContext.DailyPresenties
+    //                .Count(x => x.IsRejected == true);
+    //            model.empAttendanceViewModel.present_list();
+
+    //        }
+
+    //    }
+
+    //    return View(model);
+
+
+    //}
+    public IActionResult Dashboard(string? am)
     {
+        ViewBag.name = TempData["name"];
+
         var json = HttpContext.Session.GetString("Features");
 
         if (!string.IsNullOrEmpty(json))
@@ -124,26 +192,55 @@ left join Employees E on u.EmployeeId = e.EmployeeId
             var features = JsonConvert.DeserializeObject<List<string>>(json);
             ViewBag.Features = new { Items = features };
         }
-        var employees = _db.GetEmployeesWithDepartment();
-      
 
-       
+        ViewBag.IsAdmin = User.IsInRole("Admin");
+        ViewBag.am = am ?? "ar";
+
+        var today = DateOnly.FromDateTime(DateTime.Now);
+
+        var employees = _db.GetEmployeesWithDepartment();
 
         var model = new DashboardViewModel
         {
-            Employees = employees,
+            Employees = employees ?? new List<Employee>(),
             NewEmployee = new Employee(),
 
+            empAttendanceViewModel = new EmpAttendanceViewModel
+            {
+                employees = emsDbContext.Employees.ToList(),
+
+                dailyPresenties = emsDbContext.DailyPresenties
+                                    .Where(x => x.Status == false)
+                                    .ToList(),
+
+                                     leaveRequests = emsDbContext.LeaveRequests.ToList()
+            }
         };
 
-        return View(model);
-    }
+        // ✅ Dashboard counters (CORRECT PLACE)
+        model.PresentToday =
+            emsDbContext.DailyPresenties
+            .Count(x => x.Date == today && x.Status == true);
 
-    public IActionResult EmpDashborad() 
-    {
-        var featuresJson = HttpContext.Session.GetString("Features"); List<string> features = new List<string>(); if (featuresJson != null) { features = Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>(featuresJson); }
-        ViewBag.Features = new SelectList(features, "FeatureName", "Featurelink");
-        return View();
+        model.PendingRequests =
+            emsDbContext.DailyPresenties
+            .Count(x => x.Status == false);
+
+        model.ApprovedRequests =
+            emsDbContext.DailyPresenties
+            .Count(x => x.Status == true);
+
+        model.LeaveRequest =
+           emsDbContext.LeaveRequests
+           .Count(x => x.Status == false);
+
+
+        // build pending list
+        model.empAttendanceViewModel.present_list();
+
+        model.empAttendanceViewModel.leaveRequest();
+
+        return View(model);
     }
 
 

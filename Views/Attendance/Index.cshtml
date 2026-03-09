@@ -1,45 +1,596 @@
-﻿
+﻿@model EMS.Models.ViewModels.EmpAttendanceViewModel
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- RIGHT CORNER ALERT CONTAINER -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index:1055; width:350px;">
 
-<h2 class="mb-4 text-primary">📅 Monthly Attendance</h2>
+    @if (TempData["msg"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i>
+            @TempData["msg"]
 
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <h4>7</h4>
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    }
+
+    @if (TempData["msgtext"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i>
+            @TempData["msgtext"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    }
+
+</div>
+<style>
+    * {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .request-card {
+        border-radius: 18px;
+        border: none;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+
+    .request-header {
+        background: linear-gradient(135deg,#1e3c72,#2a5298);
+        color: white;
+        font-weight: 600;
+        padding: 15px 20px;
+        border-radius: 18px 18px 0 0;
+    }
+
+    .form-control {
+        border-radius: 12px;
+        height: 45px;
+    }
+
+    textarea.form-control {
+        height: auto;
+    }
+
+    .form-control:focus {
+        border-color: #2a5298;
+        box-shadow: 0 0 8px rgba(42,82,152,0.2);
+    }
+
+    .btn-theme {
+        background: linear-gradient(135deg,#1e3c72,#2a5298);
+        border: none;
+        color: white;
+        border-radius: 12px;
+        height: 55px;
+        font-weight: 500;
+    }
+
+        .btn-theme:hover {
+            opacity: 0.9;
+            color: white;
+        }
+
+    body {
+        background-color: #f4f6f9;
+    }
+
+    .attendance-wrapper {
+        overflow-x: auto;
+        border-radius: 15px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+
+    .attendance-table {
+        min-width: 1200px;
+        border-collapse: collapse;
+    }
+
+        .attendance-table th {
+            background: linear-gradient(135deg,#1e3c72,#2a5298);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 13px;
+            position: sticky;
+            top: 0;
+        }
+
+        .attendance-table td {
+            text-align: center;
+            vertical-align: middle;
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            font-size: 13px;
+        }
+
+    .emp-info {
+        background: #f8f9fa;
+        font-weight: 500;
+        text-align: left !important;
+    }
+
+    .attendance-options {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+
+        .attendance-options label {
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .attendance-options input {
+            margin-right: 3px;
+        }
+
+    .attendance-card {
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        color: white;
+        border-radius: 15px;
+        border: none;
+        transition: 0.3s;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .attendance-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+        }
+
+    .attendance-icon {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        font-size: 35px;
+        opacity: 0.2;
+    }
+
+    .counter {
+        font-size: 30px;
+        font-weight: bold;
+    }
+
+    .custom-table {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+        .custom-table th {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+        }
+
+    .status-present {
+        color: #198754;
+        font-weight: 600;
+    }
+
+    .status-absent {
+        color: #dc3545;
+        font-weight: 600;
+    }
+
+    .status-leave {
+        color: #ffc107;
+        font-weight: 600;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .page-title {
+        font-weight: 600;
+        font-size: 22px;
+        background: linear-gradient(90deg, #1e3c72, #2a5298);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .icon-badge {
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        color: white;
+        padding: 8px;
+        border-radius: 50%;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .header-underline {
+        height: 3px;
+        width: 80px;
+        background: linear-gradient(90deg, #1e3c72, #2a5298);
+        margin-left: auto;
+        border-radius: 10px;
+        margin-top: 6px;
+    }
+
+    .page-banner {
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        color: white;
+        padding: 25px 30px;
+        border-radius: 18px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+        .page-banner h4 {
+            font-weight: 600;
+            margin: 0;
+        }
+
+    .header-icon {
+        background: rgba(255,255,255,0.15);
+        padding: 8px 10px;
+        border-radius: 10px;
+        font-size: 18px;
+    }
+</style>
+<div class="container-fluid p-4">
+    <div class="page-banner d-flex justify-content-between align-items-center">
+
+        <!-- LEFT SIDE -->
+        <div>
+            <h4 class="mb-1 d-flex align-items-center gap-2">
+                <span class="header-icon">
+                    <i class="fa-solid fa-chart-line card-icon"></i>
+                </span>
+                Attendance Overview
+            </h4>
+
+        </div>
+
+        @*  <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#attendanceModal">
+            Raise Request
+        </button> *@
+
+    </div>
+
+    <br />
+    <div class="row mb-4 g-4">
+
+        <div class="col-md-2">
+            <div class="card attendance-card p-3">
+                <i class="fa-solid fa-user-check attendance-icon"></i>
+                <h4 class="counter" data-target="@Model.present">0</h4>
                 Present Days
             </div>
         </div>
-    </div>
 
-    <div class="col-md-4">
-        <div class="card bg-danger text-white">
-            <div class="card-body">
-                <h4>5</h4>
+        <div class="col-md-2">
+            <div class="card attendance-card p-3">
+                <i class="fa-solid fa-user-xmark attendance-icon"></i>
+                <h4 class="counter" data-target="@Model.absent">0</h4>
                 Absent Days
             </div>
         </div>
+
+        <div class="col-md-2">
+            <div class="card attendance-card p-3">
+                <i class="fa-solid fa-plane-departure attendance-icon"></i>
+                <h4 class="counter" data-target="@Model.LeaveApproved">0</h4>
+                Leaves
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card attendance-card p-3">
+                <i class="fa-solid fa-calendar-check attendance-icon"></i>
+                <h4 class="counter" data-target="@Model.LeaveRequest">0</h4>
+                Leave Requests
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card attendance-card p-3">
+                <i class="fa-solid fa-file-signature attendance-icon"></i>
+                <h4 class="counter" data-target="@Model.dailyPresentyCount">0</h4>
+                Daily Presenty Requests
+            </div>
+        </div>
+
     </div>
 
-    <div class="col-md-4">
-        <div class="card bg-warning text-white">
-            <div class="card-body">
-                <h4>5</h4>
-                Leaves
+
+   @*  @if (User.IsInRole("Admin"))
+    {
+        <div class="attendance-wrapper" id="test">
+            <table class="table attendance-table">
+
+                <!-- HEADER -->
+                <thead>
+                    <tr>
+                        <th>EmpID</th>
+                        <th>Employee Name</th>
+
+
+                        @for (int d = 1; d <= 31; d++)
+                        {
+                            <th>Day_@d.ToString("00")</th>
+                        }
+                    </tr>
+                </thead>
+
+                <!-- BODY -->
+                <tbody>
+
+                    @foreach (var emp in Model.employees)
+                    {
+                        <tr>
+
+                            <!-- LEFT INFO -->
+                            <td class="emp-info">@emp.EmployeeId</td>
+                            <td class="emp-info">@emp.FirstName @emp.LastName </td>
+
+
+                            <!-- DAYS -->
+                            @for (int d = 1; d <= 31; d++)
+                            {
+                                <td>
+                                    <div class="attendance-options">
+
+                                        <label>
+                                            <input type="radio"
+                                                   name="@( $"emp_{emp.EmployeeId}_day_{d}" )"
+                                                   value="PP" /> PP
+                                        </label>
+
+                                        <label>
+                                            <input type="radio"
+                                                   name="@( $"emp_{emp.EmployeeId}_day_{d}" )"
+                                                   value="AA" /> AA
+                                        </label>
+
+                                        <label>
+                                            <input type="radio"
+                                                   name="@( $"emp_{emp.EmployeeId}_day_{d}" )"
+                                                   value="UA" /> UA
+                                        </label>
+
+                                        <label>
+                                            <input type="radio"
+                                                   name="@( $"emp_{emp.EmployeeId}_day_{d}" )"
+                                                   value="AH" /> AH
+                                        </label>
+
+                                        <label>
+                                            <input type="radio"
+                                                   name="@( $"emp_{emp.EmployeeId}_day_{d}" )"
+                                                   value="UH" /> UH
+                                        </label>
+
+                                    </div>
+                                </td>
+                            }
+
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    }
+</div> *@
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card request-card">
+
+                <!-- HEADER -->
+                <div class="card-header request-header d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-file-signature"></i>
+                    <span>Attendance Request</span>
+                </div>
+                <div class="p-3">
+                        @if (Model.dailyPresenty != null)
+                        {
+                           
+                       
+                       
+                        <p>
+                            Duty On : 10.00 AM<span class="float-end">
+                                Duty Start Time: @(Model.dailyPresenty.PunchIn == DateTime.MinValue
+                                                                ? "Not Punched"
+                                                                : Model.dailyPresenty.PunchIn.ToString("hh:mm tt"))
+                            </span>
+                        </p>
+
+                            <p>
+                                Duty Off : 6.00 PM<span class="float-end">
+                                    Duty end Time: @(Model.dailyPresenty.PunchOut == DateTime.MinValue
+                                                                ? "Not Punched out"
+                                                                : Model.dailyPresenty.PunchOut.ToString("hh:mm tt"))
+                            </span>
+                        </p>
+                        }
+                      
+                      
+                       
+                    </div>
+                <!-- FORM -->
+                <div class="card-body">
+                    <form asp-controller="Attendance"
+                          asp-action="CreateRaiseRequest"
+                          method="post">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <!-- BUTTON -->
+                                <div class="text-end mt-4">
+                                    <button type="submit" class="btn btn-theme px-4">
+                                        <i class="fa-solid fa-paper-plane me-1"></i>
+                                        Punch In
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <!-- BUTTON -->
+                                <div class="text-end mt-4">
+                                    <button type="submit" class="btn btn-theme px-4">
+                                        <i class="fa-solid fa-paper-plane me-1"></i>
+                                        Punch Out
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <!-- BUTTON -->
+                                <div class="text-end mt-4">
+                                    <button type="submit" class="btn btn-theme px-4">
+                                        <i class="fa-solid fa-paper-plane me-1"></i>
+                                      Early Punch Out
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <!-- BUTTON -->
+                                <div class="text-end mt-4">
+                                    <button type="submit" class="btn btn-theme px-4">
+                                        <i class="fa-solid fa-paper-plane me-1"></i>
+                                      Emergency Punout
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="col-lg-6">
+            <div class="card request-card">
+
+                <!-- HEADER -->
+                <div class="card-header request-header d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-file-signature"></i>
+                    <span>Leave Request</span>
+                </div>
+
+                <!-- FORM -->
+                <div class="card-body">
+                    <form asp-controller="Attendance"
+                              asp-action="CreateRequest"
+                          method="post">
+
+                        <div class="row g-4">
+
+                            <!-- DATE -->
+                            <div class="col-md-4">
+                                <label class="form-label">From Date</label>
+                                <input type="date"
+                                       name="fromdate"
+                                       class="form-control"
+                                       required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">To Date</label>
+                                <input type="date"
+                                       name="todate"
+                                       class="form-control"
+                                       required />
+                            </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Leave Type</label>
+
+                                    <select name="LeaveType" class="form-select" required>
+                                        <option value="">-- Select Leave Type --</option>
+                                        <option value="FullDay">
+                                            Full Day
+                                        </option>
+                                        <option value="FirstHalf">
+                                            Half Day (First Half)
+                                        </option>
+                                        <option value="SecondHalf">
+                                            Half Day (Second Half)
+                                        </option>
+                                    </select>
+
+                                </div>
+                            <!-- REASON -->
+                            <div class="col-md-6">
+                                <label class="form-label">Reason</label>
+                                <textarea name="Reason"
+                                          class="form-control"
+                                          rows="3"
+                                          placeholder="Enter reason..."
+                                          required></textarea>
+                            </div>
+
+                        </div>
+
+                        <input type="hidden"
+                               name="EmployeeId"
+                               value="@User.FindFirst("EmployeeId")?.Value" />
+
+                        <!-- BUTTON -->
+                        <div class="text-end mt-4">
+                            <button type="submit" class="btn btn-theme px-4">
+                                <i class="fa-solid fa-paper-plane me-1"></i>
+                                Submit Request
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+
             </div>
         </div>
     </div>
 </div>
-<table class="table table-bordered text-center">
-    <tr class="table-dark">
-        <th>Day</th>
-        <th>Status</th>
-    </tr>
+<script>
+    const counters = document.querySelectorAll('.counter');
 
+    counters.forEach(counter => {
+        counter.innerText = '0';
 
-        <tr >
-            <td>12/02/2026</td>
-            <td>Present</td>
-        </tr>
-</table>
+        const updateCounter = () => {
+            const target = +counter.getAttribute('data-target');
+            const current = +counter.innerText;
+            const increment = target / 80;
+
+            if (current < target) {
+                counter.innerText = Math.ceil(current + increment);
+                setTimeout(updateCounter, 20);
+            } else {
+                counter.innerText = target;
+            }
+        };
+
+        updateCounter();
+    });
+
+           
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(a => {
+                a.classList.remove('show');
+                a.classList.add('fade');
+            });
+        }, 4000);
+  
+</script>

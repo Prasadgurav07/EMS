@@ -1,0 +1,230 @@
+﻿@model EMS.Models.ViewModels.MasterViewModel
+
+@{
+    var editDept = ViewBag.EditDepartment as EMS.Models.Department;
+    var editRole = ViewBag.EditRole as EMS.Models.Role;
+}
+
+<style>
+    * {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+        background-color: #f4f6f9;
+    }
+    /* ================= PAGE BANNER ================= */
+    .page-banner {
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        color: white;
+        padding: 25px 30px;
+        border-radius: 18px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+        .page-banner h3 {
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+        }
+
+    .page-icon {
+        font-size: 28px;
+        background: rgba(255,255,255,0.2);
+        padding: 12px;
+        border-radius: 50%;
+        margin-right: 15px;
+    }
+    .custom-card {
+        border-radius: 18px;
+        border: none;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+    }
+
+    .custom-table thead {
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        color: white;
+    }
+
+    .custom-table tbody tr:hover {
+        background-color: #f2f6ff;
+    }
+
+    .form-control {
+        border-radius: 10px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        border: none;
+    }
+</style>
+
+
+<div class="page-banner d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center">
+        <div class="page-icon">
+            <i class="fa-solid fa-layer-group"></i>
+        </div>
+        <div>
+            <h3>Master Management</h3>
+            <small>Manage Departments & Roles</small>
+        </div>
+    </div>
+
+  
+</div>
+
+<div class="container-fluid">
+
+    <div class="row">
+
+        <!-- ================= DEPARTMENT SECTION ================= -->
+        <div class="col-md-6">
+
+            <!-- Department Form -->
+            <div class="card custom-card">
+                <div class="card-header text-white"
+                     style="background: linear-gradient(135deg,#1e3c72,#2a5298)">
+                    <h6 class="mb-0">
+                        @(editDept == null ? "Add Department" : "Update Department")
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="add"  method="post">
+                        <input type="hidden" name="DepartmentId"
+                               value="@editDept?.DepartmentId" />
+
+                        <div class="mb-3">
+                            <label>Department Name</label>
+                            <input type="text"
+                                   name="DepartmentName"
+                                   value="@editDept?.DepartmentName"
+                                   class="form-control"
+                                   required />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            @(editDept == null ? "Save" : "Update")
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Department List -->
+            <div class="card custom-card">
+                <div class="card-body">
+                    <h6>Department List</h6>
+                    <table class="table custom-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th width="100">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Departments)
+                            {
+                                <tr>
+                                    <td>@item.DepartmentId</td>
+                                    <td>@item.DepartmentName</td>
+                                    <td>
+                                        <a asp-action="Index"
+                                           asp-route-deptId="@item.DepartmentId"
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+
+                                        <a asp-action="DeleteDepartment"
+                                           asp-route-id="@item.DepartmentId"
+                                           class="btn btn-sm btn-danger">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================= ROLE SECTION ================= -->
+        <div class="col-md-6">
+
+            <!-- Role Form -->
+            <div class="card custom-card">
+                <div class="card-header text-white"
+                     style="background: linear-gradient(135deg,#1e3c72,#2a5298)">
+                    <h6 class="mb-0">
+                        @(editRole == null ? "Add Role" : "Update Role")
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="SaveRole" method="post">
+                        <input type="hidden" name="RoleId"
+                               value="@editRole?.RoleId" />
+
+                        <div class="mb-3">
+                            <label>Role Name</label>
+                            <input type="text"
+                                   name="RoleName"
+                                   value="@editRole?.RoleName"
+                                   class="form-control"
+                                   required />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            @(editRole == null ? "Save" : "Update")
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Role List -->
+            <div class="card custom-card">
+                <div class="card-body">
+                    <h6>Role List</h6>
+                    <table class="table custom-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th width="100">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Roles)
+                            {
+                                <tr>
+                                    <td>@item.RoleId</td>
+                                    <td>@item.RoleName</td>
+                                    <td>
+                                        <a asp-action="Index"
+                                           asp-route-roleId="@item.RoleId"
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+
+                                        <a asp-action="DeleteRole"
+                                           asp-route-id="@item.RoleId"
+                                           class="btn btn-sm btn-danger">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
