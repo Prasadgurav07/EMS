@@ -3,6 +3,7 @@
 @{
     var editDept = ViewBag.EditDepartment as EMS.Models.Department;
     var editRole = ViewBag.EditRole as EMS.Models.Role;
+    var editTeam = ViewBag.EditTeam as EMS.Models.Team;
 }
 
 <style>
@@ -82,7 +83,7 @@
     <div class="row">
 
         <!-- ================= DEPARTMENT SECTION ================= -->
-        <div class="col-md-6">
+        <div class="col-md-4">
 
             <!-- Department Form -->
             <div class="card custom-card">
@@ -154,7 +155,7 @@
         </div>
 
         <!-- ================= ROLE SECTION ================= -->
-        <div class="col-md-6">
+        <div class="col-md-4">
 
             <!-- Role Form -->
             <div class="card custom-card">
@@ -224,7 +225,144 @@
             </div>
 
         </div>
+        <div class="col-md-4">
 
+            <div class="card custom-card">
+                <div class="card-header text-white"
+                     style="background: linear-gradient(135deg,#1e3c72,#2a5298)">
+                    <h6 class="mb-0">
+                        @(editTeam == null ? "Create Team" : "Update Team")
+                    </h6>
+                </div>
+
+                <div class="card-body">
+                    <form asp-action="SaveTeam" method="post">
+
+                        <input type="hidden" name="TeamId"
+                               value="@editTeam?.TeamId" />
+
+                        <!-- Team Name -->
+                        <div class="mb-3">
+                            <label>Team Name</label>
+                            <input type="text"
+                                   name="TeamName"
+                                   value="@editTeam?.TeamName"
+                                   class="form-control"
+                                   required />
+                        </div>
+
+                        <div class="row">
+
+                            <!-- Employees -->
+                            <div class="col-md-6">
+                                <div class="card border-primary mb-3">
+                                    <div class="card-header bg-primary text-white">
+                                        Select Team Members
+                                    </div>
+
+                                    <div class="card-body" style="max-height:300px; overflow-y:auto;">
+
+                                        @foreach (var emp in Model.Employees)
+                                        {
+                                            <div class="form-check">
+                                                <input type="checkbox"
+                                                       class="form-check-input"
+                                                       name="SelectedMembers"
+                                                       value="@emp.EmployeeId"
+                                                       @(Model.SelectedMembers != null && Model.SelectedMembers.Contains(emp.EmployeeId) ? "checked" : "") />
+
+                                                <label class="form-check-label">
+                                                    @emp.FirstName 
+                                                </label>
+                                            </div>
+                                        }
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Projects -->
+                            <div class="col-md-6">
+                                <div class="card border-success mb-3">
+                                    <div class="card-header bg-success text-white">
+                                        Select Projects
+                                    </div>
+
+                                    <div class="card-body" style="max-height:300px; overflow-y:auto;">
+
+                                        @foreach (var proj in Model.Projects)
+                                        {
+                                            <div class="form-check">
+                                                <input type="checkbox"
+                                                       class="form-check-input"
+                                                       name="SelectedProjects"
+                                                       value="@proj.ProjectId"
+                                                       @(Model.SelectedProjects != null && Model.SelectedProjects.Contains(proj.ProjectId) ? "checked" : "") />
+
+                                                <label class="form-check-label">
+                                                    @proj.ProjectName
+                                                </label>
+                                            </div>
+                                        }
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            @(editTeam == null ? "Save" : "Update")
+                        </button>
+
+                    </form>
+                </div>
+            </div>
+
+            <!-- Team List -->
+            <div class="card custom-card mt-3">
+                <div class="card-body">
+                    <h6>Team List</h6>
+
+                    <table class="table custom-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Project</th>
+                                <th width="120">Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var item in Model.TeamList)
+                            {
+                                <tr>
+                                    <td>@item.TeamId</td>
+                                    <td>@item.TeamName</td>
+                                    <td>@item.ProjectNames</td>
+                                    <td>
+                                        <a asp-action="Master"
+                                           asp-route-teamId="@item.TeamId"
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+
+                                        <a asp-action="DeleteTeam"
+                                           asp-route-id="@item.TeamId"
+                                           class="btn btn-sm btn-danger">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+
+        </div>
     </div>
 
 </div>

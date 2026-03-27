@@ -212,21 +212,23 @@
                 </div>
 
                 <div class="col-md-6" id="Rpres">
-                      <a asp-action="Dashboard" asp-route-am="ar" style="text-decoration:none;color:white" class="p-0">
-                    <div class="dashboard-card">
-                        <h2 class="counter" data-target="@Model.PendingRequests"></h2>
-                        <p>Presenty Requests</p>
-                        <i class="fa-solid fa-file-signature card-icon"></i>
-                    </div>
+                    <a asp-action="Dashboard" asp-route-am="ar" style="text-decoration:none;color:white" class="p-0">
+                        <div class="dashboard-card">
+                            <h2 class="counter" data-target="@Model.PendingRequests"></h2>
+                            <p>Presenty Requests</p>
+                            <i class="fa-solid fa-file-signature card-icon"></i>
+                        </div>
                     </a>
                 </div>
 
                 <div class="col-md-6" id="Ptask">
-                    <div class="dashboard-card">
-                        <h2 class="counter" data-target="0">0</h2>
-                        <p>Pending Tasks</p>
-                        <i class="fa-solid fa-hourglass-half card-icon"></i>
-                    </div>
+                    <a asp-action="Dashboard" asp-route-am="task" style="text-decoration:none;color:white" class="p-0">
+                        <div class="dashboard-card">
+                            <h2 class="counter" data-target="@Model.TaskRequests">0</h2>
+                            <p>Pending Tasks</p>
+                            <i class="fa-solid fa-hourglass-half card-icon"></i>
+                        </div>
+                    </a>
                 </div>
 
                 <div class="col-md-6" id="task">
@@ -238,11 +240,14 @@
                 </div>
 
                 <div class="col-md-6">
-                    <div class="dashboard-card" id="pro">
-                        <h2 class="counter" data-target="0">0</h2>
-                        <p>My Projects</p>
-                        <i class="fa-solid fa-folder-open card-icon"></i>
-                    </div>
+                    <a asp-action="Dashboard" asp-route-am="pro" style="text-decoration:none;color:white" class="p-0">
+                        <div class="dashboard-card" id="pro">
+
+                            <h2 class="counter" data-target="@Model.totalProjects">0</h2>
+                            <p>My Projects</p>
+                            <i class="fa-solid fa-folder-open card-icon"></i>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
@@ -447,6 +452,172 @@
                                             }
                                         </tbody>
 
+                                    </table>
+
+                                </div>
+                            </div>
+                            break;
+                        case "pro":
+                            <div class="card custom-card">
+                                <div class="card-body">
+
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="mb-0">Company Project</h5>
+                                        <input type="text" id="searchInput" class="form-control w-25"
+                                               placeholder="Search Project...">
+                                    </div>
+
+                                    <table class="table align-middle mt-2" id="employeeTable">
+                                        <thead>
+                                            <tr>
+                                                <th>ProjectId</th>
+                                                <th>Project Name</th>
+                                                <th>Project Description</th>
+
+                                                <th>End Date</th>
+                                                <th>Status</th>
+
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var ITEM in Model.empAttendanceViewModel.projects)
+                                            {
+                                                <tr>
+                                                    <td>@ITEM.ProjectId</td>
+
+                                                    <td>@ITEM.ProjectName</td>
+                                                    <td>
+                                                        @ITEM.ProjectDescription
+                                                    </td>
+
+                                                    <td>@ITEM.EndDate</td>
+                                                    <td>
+                                                        <span class="badge @(ITEM.Status == "Pending" ? "bg-warning text-dark"
+                                                                           : ITEM.Status == "Done" ? "bg-success"
+                                                                          
+                                                                           : "bg-secondary")">
+                                                                            @ITEM.Status
+                                                        </span>
+                                                    </td>
+
+                                                    <td>
+                                                        <a asp-action="Index" asp-controller="Project" asp-route-id="@ITEM.ProjectId"
+                                                           class="btn btn-sm btn-primary">
+                                                            <i class="fa fa-edit"></i>
+                                                        </a>
+
+                                                        <a asp-action="Delete" asp-route-id="@ITEM.ProjectId"
+                                                           class="btn btn-sm btn-danger">
+                                                            <i class="fa fa-trash"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+                            break;
+                        case "task":
+                            <div class="card custom-card">
+                                <div class="card-body">
+
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="mb-0">Company Project</h5>
+                                        <input type="text" id="searchInput" class="form-control w-25"
+                                               placeholder="Search Project...">
+                                    </div>
+
+                                    <table class="table align-middle mt-2" id="employeeTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Task</th>
+                                                <th>Project</th>
+                                                <th>Team</th>
+                                                <th>Employee</th>
+
+                                                <th>Deadline</th>
+                                                <th>Remaining Days</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+
+                                            @foreach (var t in Model.empAttendanceViewModel.TaskReqests)
+                                            {
+                                                <tr>
+                                                    <td>@t.TaskName</td>
+                                                    <td>@t.Project?.ProjectName</td>
+                                                    <td>@t.Team?.TeamName</td>
+                                                    <td>@t.AssignedToNavigation?.FirstName</td>
+
+                                                    <td>@t.EndDate</td>
+                                                    <td>
+                                                        @((t.EndDate.HasValue)
+                                                                                            ? (t.EndDate.Value - DateTime.Now).Days
+                                                                                            : 0)
+                                </td>
+                                <td>
+                                    <span class="badge @(t.Status == "Pending" ? "bg-warning text-dark"
+                                                          : t.Status == "Completed" ? "bg-success"
+                                                          : t.Status == "In Progress" ? "bg-info text-dark"
+                                                          : "bg-secondary")">
+                                        @t.Status
+                                    </span>
+                                </td>
+                                <td>
+
+                                    @{
+                                                            var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+                                                            var empId = Convert.ToInt32(User.FindFirst("EmployeeId")?.Value ?? "0");
+                                                        }
+                                                       
+
+
+                                                        @if (t.ApvlStatus == 2)
+                                                        {
+                                                            <!-- ✅ ONLY EMPLOYEE CAN UPDATE AFTER APPROVAL -->
+                                                            @if (t.AssignedTo == empId)
+                                                            {
+                                                                <form asp-action="UpdateStatus" method="post">
+                                                                    <input type="hidden" name="id" value="@t.TaskId" />
+
+                                                                    <select name="status" class="form-control form-control-sm">
+                                                                        <option selected="@("Pending" == t.Status)">Pending</option>
+                                                                        <option selected="@("In Progress" == t.Status)">In Progress</option>
+                                                                        <option selected="@("Completed" == t.Status)">Completed</option>
+                                                                    </select>
+
+                                                                    <button class="btn btn-primary btn-sm mt-1">Update</button>
+                                                                </form>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <!-- ✅ ADMIN / MANAGER APPROVAL -->
+                                                            @if (role == "Admin" || role == "Manager")
+                                                            {
+                                                                <a asp-action="Approve"
+                                                                asp-controller="ProjTask"
+                                                                   asp-route-id="@t.TaskId"
+                                                                   asp-route-status="2"
+                                                                   class="btn btn-success btn-sm">✔</a>
+
+                                                                <a asp-action="Approve"
+                                                                   asp-route-id="@t.TaskId"
+                                                                   asp-route-status="3"
+                                                                   class="btn btn-danger btn-sm">✖</a>
+                                                            }
+                                                        }
+
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
                                     </table>
 
                                 </div>

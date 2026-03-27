@@ -1,0 +1,90 @@
+﻿<div class="row">
+    <div class="col-lg-3">
+        <div class="card shadow-lg border-0 rounded-3">
+
+            <!-- Header -->
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">📋 Task Details</h5>
+                <a asp-action="Index" class="btn btn-light btn-sm">⬅ Back</a>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body text-center">
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="text-muted d-block">Task Name</label>
+                        <div class="fw-bold">@Model.TaskName</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="text-muted d-block">Project</label>
+                        <div class="fw-bold">@Model.Project?.ProjectName</div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="text-muted d-block">Team</label>
+                        <div class="fw-bold">@Model.Team?.TeamName</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="text-muted d-block">Assigned To</label>
+                        <div class="fw-bold">@Model.AssignedToNavigation?.FirstName</div>
+                    </div>
+                </div>
+
+                <!-- Status & Priority -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="text-muted d-block">Status</label>
+                        <span class="badge @(Model.Status == "Pending" ? "bg-warning text-dark"
+                                                                              : Model.Status == "Completed" ? "bg-success"
+                                                                              : Model.Status == "Rejected" ? "bg-danger"
+                                                                              : "bg-secondary") px-3 py-2">
+                            @Model.Status
+                        </span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="text-muted d-block">Priority</label>
+                        <span class="badge @(Model.Priority == "High" ? "bg-danger"
+                                                                              : Model.Priority == "Medium" ? "bg-warning text-dark"
+                                                                              : "bg-success") px-3 py-2">
+                            @Model.Priority
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-3">
+                    <label class="text-muted d-block">Description</label>
+                    <div class="border rounded p-3 bg-light">
+                        @Model.Description
+                    </div>
+                </div>
+
+                <!-- Dates -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-muted d-block">Start Date</label>
+                        <div class="fw-semibold">
+                            @Model.StartDate?.ToString("dd MMM yyyy")
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="text-muted d-block">End Date</label>
+                        <div class="fw-semibold">
+                            @Model.EndDate?.ToString("dd MMM yyyy")
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6"></div>
+</div>

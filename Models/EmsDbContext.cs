@@ -26,16 +26,22 @@ public partial class EmsDbContext : DbContext
     public virtual DbSet<LeaveRequest> LeaveRequests { get; set; }
 
     public virtual DbSet<Project> Projects { get; set; }
-
+    public virtual DbSet<ProjTask> ProjTasks { get; set; }
     public virtual DbSet<Role> Roles { get; set; }
+
+
 
     public virtual DbSet<RoleFeatureAccess> RoleFeatureAccesses { get; set; }
 
+    public virtual DbSet<Team> Teams { get; set; }
+   
+    public virtual DbSet<TeamMember> TeamMembers { get; set; }
+
+    public virtual DbSet<TeamProject> TeamProjects { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=DESKTOP-NGALKNG\\SQLEXPRESS;Database=EMS_DB;Trusted_Connection=True;TrustServerCertificate=True;");
+   
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -191,6 +197,38 @@ public partial class EmsDbContext : DbContext
                 .HasConstraintName("FK_RoleFeature_Role");
         });
 
+        modelBuilder.Entity<Team>(entity =>
+        {
+            entity.HasKey(e => e.TeamId).HasName("PK__Teams__123AE7998B550E87");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.TeamName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<TeamMember>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__TeamMemb__3214EC0764B32C43");
+
+            entity.HasOne(d => d.Team).WithMany(p => p.TeamMembers)
+                .HasForeignKey(d => d.TeamId)
+                .HasConstraintName("FK__TeamMembe__TeamI__3F115E1A");
+        });
+
+        modelBuilder.Entity<TeamProject>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__TeamProj__3214EC07404CBBFF");
+
+            entity.HasOne(d => d.Project).WithMany(p => p.TeamProjects)
+                .HasForeignKey(d => d.ProjectId)
+                .HasConstraintName("FK__TeamProje__Proje__42E1EEFE");
+
+            entity.HasOne(d => d.Team).WithMany(p => p.TeamProjects)
+                .HasForeignKey(d => d.TeamId)
+                .HasConstraintName("FK__TeamProje__TeamI__41EDCAC5");
+        });
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.UserId).HasName("PK__Users__1788CC4CDBA06207");
@@ -214,7 +252,39 @@ public partial class EmsDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Users_Roles");
         });
+        modelBuilder.Entity<ProjTask>(entity =>
+        {
+            entity.HasKey(e => e.TaskId).HasName("PK__Proj_Tas__7C6949B1E0359CA3");
 
+            entity.ToTable("Proj_Tasks");
+
+            entity.Property(e => e.ApvlStatus).HasColumnName("Apvl_status");
+            entity.Property(e => e.CreatedBy).HasColumnName("Created_By");
+            entity.Property(e => e.CreatedDate).HasColumnName("created_date");
+            entity.Property(e => e.EndDate).HasColumnType("datetime");
+            entity.Property(e => e.Priority).HasMaxLength(200);
+            entity.Property(e => e.StartDate).HasColumnType("datetime");
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .HasDefaultValue("Pending");
+            entity.Property(e => e.TaskName).HasMaxLength(200);
+            entity.Property(e => e.UpdBy).HasColumnName("upd_by");
+            entity.Property(e => e.UpdDate)
+                .HasMaxLength(200)
+                .HasColumnName("upd_date");
+
+            entity.HasOne(d => d.AssignedToNavigation).WithMany(p => p.ProjTasks)
+                .HasForeignKey(d => d.AssignedTo)
+                .HasConstraintName("FK__Proj_Task__Assig__56E8E7AB");
+
+            entity.HasOne(d => d.Project).WithMany(p => p.ProjTasks)
+                .HasForeignKey(d => d.ProjectId)
+                .HasConstraintName("FK__Proj_Task__Proje__55F4C372");
+
+            entity.HasOne(d => d.Team).WithMany(p => p.ProjTasks)
+                .HasForeignKey(d => d.TeamId)
+                .HasConstraintName("FK__Proj_Task__TeamI__57DD0BE4");
+        });
         OnModelCreatingPartial(modelBuilder);
     }
 

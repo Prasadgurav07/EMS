@@ -1,0 +1,95 @@
+﻿@model EMS.Models.ProjTask
+
+<div class="container mt-4">
+
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+            <h5>Create Task</h5>
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="Create" method="post">
+
+                <div class="row">
+
+                    <!-- Task Name -->
+                    <div class="col-md-6 mb-3">
+                        <label>Task Name</label>
+                        <input asp-for="TaskName" class="form-control" />
+                    </div>
+
+                    <!-- Priority -->
+                    <div class="col-md-6 mb-3">
+                        <label>Priority</label>
+                        <select asp-for="Priority" class="form-control">
+                            <option value="">-- Select Priority --</option>
+                            <option>High</option>
+                            <option>Medium</option>
+                            <option>Low</option>
+                        </select>
+                    </div>
+
+                    <!-- Project -->
+                    <div class="col-md-6 mb-3">
+                        <label>Project</label>
+                        <select asp-for="ProjectId" class="form-control" asp-items="ViewBag.Projects">
+                            <option value="">-- Select Project --</option>
+                        </select>
+                    </div>
+
+                    <!-- Team -->
+                    <div class="col-md-6 mb-3">
+                        <label>Team</label>
+                        <select asp-for="TeamId" id="teamDropdown" class="form-control" asp-items="ViewBag.Teams">
+                            <option value="">-- Select Team --</option>
+                        </select>
+                    </div>
+
+                    <!-- Employee -->
+                    <div class="col-md-6 mb-3">
+                        <label>Assign To</label>
+                        <select asp-for="AssignedTo" class="form-control" asp-items="ViewBag.Employees">
+                            <option value="">-- Select Employee --</option>
+                        </select>
+                    </div>
+
+                    <!-- Start Date -->
+                    <div class="col-md-6 mb-3">
+                        <label>Start Date</label>
+                        <input asp-for="StartDate" type="date" class="form-control" />
+                    </div>
+
+                    <!-- End Date -->
+                    <div class="col-md-6 mb-3">
+                        <label>End Date</label>
+                        <input asp-for="EndDate" type="date" class="form-control" />
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-md-12 mb-3">
+                        <label>Description</label>
+                        <textarea asp-for="Description" class="form-control"></textarea>
+                    </div>
+
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn btn-success w-100">
+                    Create Task
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- SUCCESS MESSAGE -->
+@if (TempData["msg"] != null)
+{
+    <div class="alert alert-success mt-3">
+        @TempData["msg"]
+    </div>
+}

@@ -1,0 +1,268 @@
+﻿@using EMS.Models.ViewModels
+@model ProjTaskVM
+
+
+
+
+<div class="position-fixed top-0 end-0 p-3" style="z-index:1055; width:350px;">
+
+    @if (TempData["msg"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i>
+            @TempData["msg"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    }
+
+   
+
+</div>
+
+<div class="page-banner d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center">
+        <div class="page-icon">
+            <i class="fa-solid fa-users"></i>
+        </div>
+        <div>
+            <h3> Tasks </h3>
+            <small>Assign Task To Employee </small>
+        </div>
+    </div>
+
+
+</div>
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- ================= LEFT : EMPLOYEE LIST ================= -->
+        <div class="col-md-9">
+            <div class="card custom-card">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Company Projects</h5>
+                        <input type="text" id="searchInput" class="form-control w-25"
+                               placeholder="Search Projects...">
+                    </div>
+
+                    <table class="table align-middle mt-2" id="employeeTable">
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Project</th>
+                                <th>Team</th>
+                                <th>Employee</th>
+
+                                <th>Deadline</th>
+                                <th>Remaining Days</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+
+                            @foreach (var t in Model.TaskList)
+                            {
+                                <tr>
+                                    <td>@t.TaskName</td>
+                                    <td>@t.Project?.ProjectName</td>
+                                    <td>@t.Team?.TeamName</td>
+                                    <td>@t.AssignedToNavigation?.FirstName</td>
+
+                                    <td>@t.EndDate</td>
+                                    <td>
+                                        @((t.EndDate.HasValue)
+                                                                            ? (t.EndDate.Value - DateTime.Now).Days
+                                                                            : 0)
+                                </td>
+                                <td>
+                                    <span class="badge @(t.Status == "Pending" ? "bg-warning text-dark"
+                                                                   : t.Status == "Completed" ? "bg-success"
+                                                                   : t.Status == "In Progress" ? "bg-info text-dark"
+                                                                   : "bg-secondary")">
+                                        @t.Status
+                                    </span> 
+                                </td>
+                                <td>
+
+                                    @{
+                                            var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+                                            var empId = Convert.ToInt32(User.FindFirst("EmployeeId")?.Value ?? "0");
+                                        }
+                                        <a asp-action="Details"
+                                           asp-route-id="@t.TaskId"
+                                           class="btn btn-sm btn-info">
+                                            <i class="fa fa-eye"></i>
+                                        </a>
+                                        <!-- 🔥 VIEW DETAILS (ALWAYS SHOW) -->
+                                        @if (role == "Admin" || role == "Manager")
+                                        {
+                                           
+                                            <a asp-action="Details"
+                                               asp-route-id="@t.TaskId"
+                                               class="btn btn-sm btn-primary">
+                                                <i class="fa fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Details"
+                                               asp-route-id="@t.TaskId"
+                                               class="btn btn-sm btn-danger">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
+                                        }
+                                     
+
+                                        @if (t.ApvlStatus == 2)
+                                        {
+                                            <!-- ✅ ONLY EMPLOYEE CAN UPDATE AFTER APPROVAL -->
+                                            @if (t.AssignedTo == empId)
+                                            {
+                                                <form asp-action="UpdateStatus" method="post">
+                                                    <input type="hidden" name="id" value="@t.TaskId" />
+
+                                                    <select name="status" class="form-control form-control-sm">
+                                                        <option selected="@("Pending" == t.Status)">Pending</option>
+                                                        <option selected="@("In Progress" == t.Status)">In Progress</option>
+                                                        <option selected="@("Completed" == t.Status)">Completed</option>
+                                                    </select>
+
+                                                    <button class="btn btn-primary btn-sm mt-1">Update</button>
+                                                </form>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <!-- ✅ ADMIN / MANAGER APPROVAL -->
+                                            @if (role == "Admin" || role == "Manager")
+                                            {
+                                                <a asp-action="Approve"
+                                                   asp-route-id="@t.TaskId"
+                                                   asp-route-status="2"
+                                                   class="btn btn-success btn-sm">✔</a>
+
+                                                <a asp-action="Approve"
+                                                   asp-route-id="@t.TaskId"
+                                                   asp-route-status="3"
+                                                   class="btn btn-danger btn-sm">✖</a>
+                                            }
+                                        }
+
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        @{
+            var role1 = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+        }
+        @if (role1 == "Admin" || role1 == "Team Leader")
+        {
+        <!-- ================= RIGHT : ADD EMPLOYEE FORM ================= -->
+        <div class="col-md-3">
+            <div class="card custom-card">
+                <div class="card-header text-white"
+                     style="background: linear-gradient(135deg, #1e3c72, #2a5298); border-radius:18px 18px 0 0;">
+                    <h5 class="mb-0">
+                        @(Model.Task.TaskId == 0 ? "Add Task" : "Update Task")
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Task.TaskId" />
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3">
+                        </div> <div class="row g-3">
+                            <div class="col-md-12">
+                                <label asp-for="Task.TaskName" class="form-label">Task Name</label>
+                                <input asp-for="Task.TaskName" class="form-control" />
+                                <span asp-validation-for="Task.TaskName" class="text-danger">
+                                </span>
+                            </div>
+                            <div class="col-md-12">
+                                <label asp-for="Task.Description" class="form-label">Project Description</label>
+                                <textarea asp-for="Task.Description" class="form-control" class="form-control"
+                                          rows="3"
+                                          placeholder="Enter Description..."
+                                          required></textarea>
+                                <span asp-validation-for="Task.Description" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Task.StartDate" class="form-label">Start Date</label>
+                                <input asp-for="Task.StartDate" class="form-control" type="date" />
+                                <span asp-validation-for="Task.StartDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Task.EndDate" class="form-label">End Date</label>
+                                <input asp-for="Task.EndDate" class="form-control" type="date" />
+                                <span asp-validation-for="Task.EndDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Priority</label>
+                                <select asp-for="Task.Priority" class="form-control">
+                                    <option>High</option>
+                                    <option>Medium</option>
+                                    <option>Low</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+
+                                <label>Assign To</label>
+                                <select asp-for="Task.AssignedTo" class="form-control">
+                                    @foreach (var e in Model.Employees)
+                                    {
+                                        <option value="@e.EmployeeId">@e.FirstName</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Team</label>
+                                <select asp-for="Task.TeamId" class="form-control">
+                                    @foreach (var t in Model.Teams)
+                                    {
+                                        <option value="@t.TeamId">@t.TeamName</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Project</label>
+                                <select asp-for="Task.ProjectId" class="form-control">
+                                    @foreach (var p in Model.Projects)
+                                    {
+                                        <option value="@p.ProjectId">@p.ProjectName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <div class="mt-4 text-end">
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                @(Model.Task.TaskId == 0 ? "Add" : "Update")
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+</div>
+<script>
+    setTimeout(() => {
+          document.querySelectorAll('.alert').forEach(a => {
+              a.classList.remove('show');
+              a.classList.add('fade');
+          });
+      }, 4000);
+</script>

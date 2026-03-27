@@ -53,9 +53,13 @@
                                     </td>
                                     <td>@ITEM.StartDate</td>
                                     <td>@ITEM.EndDate</td>
-                                    <td class="@(ITEM.Status == "Pending" ? "bg-danger" : ITEM.Status == "Done" ? "bg-success" : "")">
+                                    <td >
+                                    <span class="badge @(ITEM.Status == "Pending" ? "bg-warning text-dark"
+                                                         : ITEM.Status == "Done" ? "bg-success"
+                                                         : "bg-secondary")">
                                         @ITEM.Status
-                                    </td>
+                                    </span>
+                                </td>
                                     <td>@ITEM.CreatedDate</td>
                                     <td>
                                         <a asp-action="Index" asp-route-id="@ITEM.ProjectId"

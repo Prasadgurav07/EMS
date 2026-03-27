@@ -33,5 +33,7 @@ public partial class Employee
 
     public virtual Department Department { get; set; } = null!;
 
+    public virtual ICollection<ProjTask> ProjTasks { get; set; } = new List<ProjTask>();
+
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

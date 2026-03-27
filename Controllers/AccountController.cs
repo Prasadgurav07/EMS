@@ -203,6 +203,7 @@ public class AccountController : Controller
         var model = new DashboardViewModel
         {
             Employees = employees ?? new List<Employee>(),
+    
             NewEmployee = new Employee(),
 
             empAttendanceViewModel = new EmpAttendanceViewModel
@@ -213,7 +214,11 @@ public class AccountController : Controller
                                     .Where(x => x.Status == false)
                                     .ToList(),
 
-                                     leaveRequests = emsDbContext.LeaveRequests.ToList()
+                                     leaveRequests = emsDbContext.LeaveRequests.ToList(),
+                projects = emsDbContext.Projects.ToList(),
+                TaskReqests = emsDbContext.ProjTasks.Where(x => x.ApvlStatus == 1).ToList()
+
+
             }
         };
 
@@ -230,6 +235,12 @@ public class AccountController : Controller
             emsDbContext.DailyPresenties
             .Count(x => x.Status == true);
 
+        model.TaskRequests =
+            emsDbContext.ProjTasks
+            .Count(x => x.ApvlStatus == 1);
+
+        model.totalProjects = emsDbContext.Projects.Count();
+
         model.LeaveRequest =
            emsDbContext.LeaveRequests
            .Count(x => x.Status == false);
@@ -239,6 +250,8 @@ public class AccountController : Controller
         model.empAttendanceViewModel.present_list();
 
         model.empAttendanceViewModel.leaveRequest();
+        model.empAttendanceViewModel.allproject();
+        model.empAttendanceViewModel.TasksRequest();
 
         return View(model);
     }
